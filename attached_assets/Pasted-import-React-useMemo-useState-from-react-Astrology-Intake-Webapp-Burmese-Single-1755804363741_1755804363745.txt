@@ -1,0 +1,495 @@
+import React, { useMemo, useState } from "react";
+
+// Astrology Intake Webapp (Burmese)
+// Single-file React component. Uses Tailwind for styling. No external libs.
+// Export: default React component for preview.
+
+const initialState = {
+  name: "",
+  birthDate: "",
+  birthTime: "",
+  timeUnknown: false,
+  birthPlace: "",
+  gender: "",
+  contactEmail: "",
+  contactPhone: "",
+  topics: [],
+  questions: "",
+  relationshipStatus: "",
+  occupation: "",
+  industry: "",
+  timeline: "",
+  budget: "",
+  urgency: 3,
+  attachments: "",
+  currentCity: "",
+  consent: false,
+  language: "my",
+};
+
+const TOPIC_OPTIONS = [
+  { id: "career", label: "အလုပ်အကိုင်/လုပ်ငန်း" },
+  { id: "love", label: "ပေါင်းသင်းရေး/အချစ်ရေး" },
+  { id: "finance", label: "ငွေကြေး/ရင်းနှီးမြှုပ်နှံ" },
+  { id: "health", label: "ကျန်းမာရေး" },
+  { id: "education", label: "ပညာရေး/သင်တန်း" },
+  { id: "family", label: "မိသားစု/ထိတတ်မှု" },
+  { id: "travel", label: "ခရီးသွား/ပြောင်းရွှေ့နေထိုင်" },
+  { id: "business", label: "စီးပွားရေးစီမံချက်" },
+  { id: "legal", label: "ဥပဒေ/ပုဒ်မဆိုင်ရာ" },
+  { id: "spiritual", label: "ဝိညာဉ်ရေးရာ/စာစောင်" },
+  { id: "immigration", label: "နိုင်ငံပြောင်း/ဗီဇာ" },
+];
+
+const RELATIONSHIP_OPTIONS = [
+  "လွတ်လပ်", "နိဒါန်း", "နှီးနှောနေ", "လက်ထပ်ထား", "ခွဲခွာ/မတင်", "ပြောရန်မဖြစ်",
+];
+
+const TIMELINE_OPTIONS = [
+  "၁ လ အတွင်း", "၃ လ အတွင်း", "၆ လ အတွင်း", "၁ နှစ် အတွင်း", "ရေရှည်", "သတ်မှတ်မထား"
+];
+
+function cn(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+function Section({ title, children, description }) {
+  return (
+    <section className="bg-white rounded-2xl shadow-sm p-6 space-y-2 border border-slate-100">
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+        {description && (
+          <p className="text-sm text-slate-500 mt-1">{description}</p>
+        )}
+      </div>
+      <div className="grid gap-4">{children}</div>
+    </section>
+  );
+}
+
+export default function AstrologyIntakeForm() {
+  const [data, setData] = useState(initialState);
+  const [touched, setTouched] = useState({});
+  const [copied, setCopied] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
+
+  const required = {
+    name: !data.name,
+    birthDate: !data.birthDate,
+    birthPlace: !data.birthPlace,
+    contact: !(data.contactEmail || data.contactPhone),
+    topics: data.topics.length === 0,
+    consent: !data.consent,
+  };
+
+  const remaining = 1000 - data.questions.length;
+
+  function update(field, value) {
+    setData((d) => ({ ...d, [field]: value }));
+  }
+
+  function toggleTopic(id) {
+    setData((d) => ({
+      ...d,
+      topics: d.topics.includes(id)
+        ? d.topics.filter((t) => t !== id)
+        : [...d.topics, id],
+    }));
+  }
+
+  function resetForm() {
+    setData(initialState);
+    setTouched({});
+    setCopied(false);
+    setDownloaded(false);
+  }
+
+  const topicLabels = useMemo(
+    () => data.topics.map((t) => TOPIC_OPTIONS.find((x) => x.id === t)?.label).filter(Boolean),
+    [data.topics]
+  );
+
+  const formattedSummary = useMemo(() => {
+    const t = (k) => ({
+      name: "အမည်",
+      birthDate: "မွေးသက္ကရာဇ်",
+      birthTime: "မွေးချိန်",
+      birthPlace: "မွေးရပ်ဇာတိ/မြို့/နိုင်ငံ",
+      gender: "လိင်",
+      contactEmail: "အီးမေးလ်",
+      contactPhone: "ဖုန်း",
+      currentCity: "လက်ရှိနေထိုင်ရာမြို့",
+      topics: "မေးလိုသည့် အဓိကရာထူး",
+      questions: "အသေးစိတ်မေးခွန်းများ",
+      relationshipStatus: "အိမ်ထောင်ရေးအခြေအနေ",
+      occupation: "အလုပ်အကိုင်",
+      industry: "လုပ်ငန်းခွင်",
+      timeline: "အချိန်ကာလ",
+      budget: "ဘတ်ဂျက်/ဆက်သွယ်ကြေး",
+      urgency: "အရေးပေါ်အဆင့် (၁-၅)",
+      attachments: "ထပ်ဆောင်းဖိုင်/လင့်ခ်",
+    })[k];
+
+    const timeText = data.timeUnknown ? "မသိ" : data.birthTime || "မထည့်ရသေး";
+
+    const lines = [
+      `${t("name")}: ${data.name || "-"}`,
+      `${t("birthDate")}: ${data.birthDate || "-"}`,
+      `${t("birthTime")}: ${timeText}`,
+      `${t("birthPlace")}: ${data.birthPlace || "-"}`,
+      `${t("gender")}: ${data.gender || "-"}`,
+      `${t("contactEmail")}: ${data.contactEmail || "-"}`,
+      `${t("contactPhone")}: ${data.contactPhone || "-"}`,
+      `${t("currentCity")}: ${data.currentCity || "-"}`,
+      `${t("topics")}: ${topicLabels.join(", ") || "-"}`,
+      `${t("questions")}: ${data.questions || "-"}`,
+      `${t("relationshipStatus")}: ${data.relationshipStatus || "-"}`,
+      `${t("occupation")}: ${data.occupation || "-"}`,
+      `${t("industry")}: ${data.industry || "-"}`,
+      `${t("timeline")}: ${data.timeline || "-"}`,
+      `${t("budget")}: ${data.budget || "-"}`,
+      `${t("urgency")}: ${data.urgency}`,
+      `${t("attachments")}: ${data.attachments || "-"}`,
+    ];
+
+    return `ဗေဒင်မေးမြန်းမှု အချက်အလက် စုစည်းချက်\n----------------------------------\n${lines.join("\n")}`;
+  }, [data, topicLabels]);
+
+  const allGood = Object.values(required).every((v) => !v);
+
+  async function copySummary() {
+    try {
+      await navigator.clipboard.writeText(formattedSummary);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      alert("ကော်ပီမရနိုင်ပါ။ Browser အားပြင်ဆင်ပါ။");
+    }
+  }
+
+  function downloadJSON() {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `astrology-intake-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setDownloaded(true);
+    setTimeout(() => setDownloaded(false), 2000);
+  }
+
+  function onSubmit(e) {
+    e.preventDefault();
+    if (!allGood) {
+      alert("လိုအပ်သောအချက်အလက်များကို စုံစမ်းပြီးဖြည့်ပါ။");
+      return;
+    }
+    copySummary();
+  }
+
+  const errorBadge = (cond) => (
+    <span className={cn("text-xs px-2 py-0.5 rounded-full", cond ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700")}>{cond ? "လိုအပ်" : "OK"}</span>
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800">
+      <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b border-slate-100">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold tracking-tight">ဗေဒင်မေးခွန်း စုစည်းမှု Webapp</h1>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copySummary}
+              className="px-3 py-2 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-100 text-sm"
+            >{copied ? "ကော်ပီပြီး" : "အကျဉ်းချုပ် ကော်ပီ"}</button>
+            <button
+              onClick={downloadJSON}
+              className="px-3 py-2 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-100 text-sm"
+            >{downloaded ? "ဒေါင်းလုဒ်ပြီး" : "JSON ဒေါင်းလုဒ်"}</button>
+            <button
+              onClick={resetForm}
+              className="px-3 py-2 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-100 text-sm"
+            >ပြန်လည်ဖျက်မယ်</button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto p-4 space-y-6">
+        {/* Progress */}
+        <div className="grid grid-cols-5 gap-2">
+          {Object.entries({
+            name: required.name,
+            birthDate: required.birthDate,
+            birthPlace: required.birthPlace,
+            contact: required.contact,
+            topics: required.topics,
+          }).map(([k, v]) => (
+            <div key={k} className={cn("h-2 rounded-full", v ? "bg-rose-200" : "bg-emerald-300")} />
+          ))}
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-6">
+          <Section title="မွန်မြတ်သော အခြေခံအချက်အလက်" description="အမည်၊ မွေးရက်၊ မွေးနေရာ စသည်ဖြင့်"> 
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">အမည် {errorBadge(required.name)}</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                  placeholder="ဥပမာ - အာကာစိုး"
+                  value={data.name}
+                  onChange={(e) => update("name", e.target.value)}
+                  onBlur={() => setTouched((t)=>({ ...t, name: true }))}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">မွေးသက္ကရာဇ် {errorBadge(required.birthDate)}</label>
+                <input
+                  type="date"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                  value={data.birthDate}
+                  onChange={(e) => update("birthDate", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">မွေးချိန်</label>
+                <div className="flex items-center gap-2 mt-1">
+                  <input
+                    type="time"
+                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                    disabled={data.timeUnknown}
+                    value={data.birthTime}
+                    onChange={(e) => update("birthTime", e.target.value)}
+                  />
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={data.timeUnknown}
+                      onChange={(e) => update("timeUnknown", e.target.checked)}
+                    />
+                    <span>မသိ</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">မွေးရပ်ဇာတိ/မြို့/နိုင်ငံ {errorBadge(required.birthPlace)}</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                  placeholder="ဥပမာ - ပျဉ်းမနား၊ မြန်မာ"
+                  value={data.birthPlace}
+                  onChange={(e) => update("birthPlace", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">လိင်</label>
+                <select
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  value={data.gender}
+                  onChange={(e) => update("gender", e.target.value)}
+                >
+                  <option value="">ရွေးချယ်ပါ</option>
+                  <option value="male">ကျား</option>
+                  <option value="female">မ</option>
+                  <option value="other">အခြား</option>
+                  <option value="skip">မပြောလို</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">လက်ရှိနေထိုင်ရာမြို့/တိုင်း</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="ဥပမာ - ရန်ကုန်"
+                  value={data.currentCity}
+                  onChange={(e) => update("currentCity", e.target.value)}
+                />
+              </div>
+            </div>
+          </Section>
+
+          <Section title="ဆက်သွယ်ရန်" description="အနည်းဆုံး Email သို့မဟုတ် ဖုန်း တစ်ခုလိုအပ်သည်">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">အီးမေးလ် {errorBadge(required.contact)}</label>
+                <input
+                  type="email"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="you@example.com"
+                  value={data.contactEmail}
+                  onChange={(e) => update("contactEmail", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">ဖုန်းနံပါတ် {errorBadge(required.contact)}</label>
+                <input
+                  type="tel"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="09xxxxxxxxx"
+                  value={data.contactPhone}
+                  onChange={(e) => update("contactPhone", e.target.value)}
+                />
+              </div>
+            </div>
+          </Section>
+
+          <Section title="မေးလိုသည့် အဓိကအကြောင်းအရာ" description="ဆိုင်ရာအားလုံးကို ရွေးနိုင်သည်">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {TOPIC_OPTIONS.map((opt) => (
+                <label key={opt.id} className={cn(
+                  "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none",
+                  data.topics.includes(opt.id) ? "bg-emerald-50 border-emerald-200" : "bg-white border-slate-200"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={data.topics.includes(opt.id)}
+                    onChange={() => toggleTopic(opt.id)}
+                  />
+                  <span className="text-sm">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="text-sm">{errorBadge(required.topics)} အနည်းဆုံး အကြောင်းအရာ ၁ ခုကို ရွေးပါ</div>
+          </Section>
+
+          <Section title="အသေးစိတ်မေးခွန်းများ" description="သေချာတဲ့ မေးခွန်းများကို မြန်မာလို ရေးပါ (အများဆုံး ၁၀၀၀ စာလုံး)">
+            <textarea
+              className="w-full min-h-[140px] rounded-2xl border border-slate-200 px-3 py-2"
+              maxLength={1000}
+              placeholder="ဥပမာ: ၂၀၂၅ ခုနှစ်တွင် အလုပ်ပြောင်းသင့်/မသင့်၊ ဘယ်လအထိ စောင့်သင့်သလဲ..."
+              value={data.questions}
+              onChange={(e) => update("questions", e.target.value)}
+            />
+            <div className={cn("text-xs", remaining < 50 ? "text-rose-600" : "text-slate-500")}>လက်ရှိကျန်ဆုံး စာလုံး: {remaining}</div>
+          </Section>
+
+          <Section title="နောက်ခံအချက်အလက် (ပြောချင်လျှင်သာ)">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">အိမ်ထောင်ရေးအခြေအနေ</label>
+                <select
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  value={data.relationshipStatus}
+                  onChange={(e) => update("relationshipStatus", e.target.value)}
+                >
+                  <option value="">ရွေးချယ်ပါ</option>
+                  {RELATIONSHIP_OPTIONS.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">အလုပ်အကိုင်</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="Network Technician, Student, Entrepreneur"
+                  value={data.occupation}
+                  onChange={(e) => update("occupation", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">လုပ်ငန်းခွင်</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="IT, Banking, Education, Healthcare"
+                  value={data.industry}
+                  onChange={(e) => update("industry", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">အချိန်ကာလ</label>
+                <select
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  value={data.timeline}
+                  onChange={(e) => update("timeline", e.target.value)}
+                >
+                  <option value="">ရွေးချယ်ပါ</option>
+                  {TIMELINE_OPTIONS.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">ဘတ်ဂျက်/ဆက်သွယ်ကြေး (ကျပ်/ဒေါ်လာ)</label>
+                <input
+                  type="number"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="အကန့်အသတ်ရှိပါက ထိုးထည့်ပါ"
+                  value={data.budget}
+                  onChange={(e) => update("budget", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">အရေးပေါ်အဆင့်: {data.urgency}</label>
+                <input
+                  type="range"
+                  min={1}
+                  max={5}
+                  step={1}
+                  className="mt-1 w-full"
+                  value={data.urgency}
+                  onChange={(e) => update("urgency", Number(e.target.value))}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">ထပ်ဆောင်း ဖိုင်/လင့်ခ်</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  placeholder="ဥပမာ - Google Drive/OneDrive link"
+                  value={data.attachments}
+                  onChange={(e) => update("attachments", e.target.value)}
+                />
+              </div>
+            </div>
+          </Section>
+
+          <Section title="Privacy & Consent" description="မှန်ကန်မှုအတွက် ထည့်သွင်းသည့် အချက်အလက်များကို ဗေဒင်ဖော်ပြရာတွင်သာ အသုံးပြုမည်">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={data.consent}
+                onChange={(e) => update("consent", e.target.checked)}
+              />
+              <span className="text-sm">အချက်အလက်များကို သဘောတူညီချက်ဖြင့် ပေးပို့ရန် သဘောတူပါသည်</span>
+              {errorBadge(required.consent)}
+            </label>
+          </Section>
+
+          <Section title="မော်ကွန်း/အကျဉ်းချုပ်">
+            <pre className="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs whitespace-pre-wrap leading-relaxed">
+{formattedSummary}
+            </pre>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+              >ကော်ပီပြီး မေးမည်</button>
+              <button
+                type="button"
+                onClick={downloadJSON}
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-100"
+              >JSON ဒေါင်းလုဒ်</button>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-100"
+              >ပြန်လည်ဖျက်မယ်</button>
+            </div>
+
+            {!allGood && (
+              <p className="text-sm text-rose-600">သတိပြုရန်: *လိုအပ်ချက်များ မပြည့်စုံသေးပါ*</p>
+            )}
+          </Section>
+        </form>
+
+        <footer className="text-center text-xs text-slate-500 pt-6 pb-8">
+          © {new Date().getFullYear()} Astrology Intake Helper — Burmese UI
+        </footer>
+      </main>
+    </div>
+  );
+}

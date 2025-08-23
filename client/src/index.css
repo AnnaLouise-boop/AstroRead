@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(220, 40%, 6%);
+  --foreground: hsl(210, 6%, 91%);
+  --card: hsl(220, 30%, 8%);
+  --card-foreground: hsl(210, 6%, 91%);
+  --popover: hsl(220, 40%, 6%);
+  --popover-foreground: hsl(210, 6%, 91%);
+  --primary: hsl(45, 92%, 56%);
+  --primary-foreground: hsl(220, 40%, 6%);
+  --secondary: hsl(258, 88%, 65%);
+  --secondary-foreground: hsl(210, 6%, 91%);
+  --muted: hsl(220, 15%, 15%);
+  --muted-foreground: hsl(210, 6%, 56%);
+  --accent: hsl(258, 70%, 20%);
+  --accent-foreground: hsl(45, 92%, 56%);
+  --destructive: hsl(356, 91%, 54%);
+  --destructive-foreground: hsl(210, 6%, 91%);
+  --border: hsl(258, 51%, 13%);
+  --input: hsl(220, 20%, 18%);
+  --ring: hsl(45, 92%, 56%);
+  
+  /* Cosmic color palette */
+  --cosmic-50: hsl(210, 60%, 98%);
+  --cosmic-100: hsl(210, 40%, 95%);
+  --cosmic-200: hsl(214, 32%, 91%);
+  --cosmic-300: hsl(213, 27%, 84%);
+  --cosmic-400: hsl(215, 20%, 65%);
+  --cosmic-500: hsl(215, 16%, 47%);
+  --cosmic-600: hsl(215, 19%, 35%);
+  --cosmic-700: hsl(215, 25%, 27%);
+  --cosmic-800: hsl(217, 33%, 17%);
+  --cosmic-900: hsl(220, 40%, 8%);
+  --cosmic-950: hsl(224, 71%, 4%);
+  
+  /* Mystical purples */
+  --mystical-50: hsl(270, 100%, 98%);
+  --mystical-100: hsl(269, 100%, 95%);
+  --mystical-200: hsl(269, 100%, 92%);
+  --mystical-300: hsl(268, 100%, 86%);
+  --mystical-400: hsl(270, 95%, 75%);
+  --mystical-500: hsl(270, 91%, 65%);
+  --mystical-600: hsl(271, 81%, 56%);
+  --mystical-700: hsl(272, 72%, 47%);
+  --mystical-800: hsl(272, 69%, 39%);
+  --mystical-900: hsl(273, 73%, 32%);
+  --mystical-950: hsl(274, 87%, 21%);
+  
+  /* Celestial golds */
+  --celestial-50: hsl(45, 100%, 96%);
+  --celestial-100: hsl(48, 100%, 88%);
+  --celestial-200: hsl(48, 95%, 76%);
+  --celestial-300: hsl(45, 93%, 58%);
+  --celestial-400: hsl(43, 96%, 56%);
+  --celestial-500: hsl(37, 92%, 50%);
+  --celestial-600: hsl(32, 95%, 44%);
+  --celestial-700: hsl(26, 90%, 37%);
+  --celestial-800: hsl(23, 83%, 31%);
+  --celestial-900: hsl(22, 78%, 26%);
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-mono: 'Monaco', monospace;
+  --radius: 1rem;
+}
+
+.dark {
+  --background: hsl(220, 40%, 6%);
+  --foreground: hsl(210, 6%, 91%);
+  --card: hsl(220, 30%, 8%);
+  --card-foreground: hsl(210, 6%, 91%);
+  --popover: hsl(220, 40%, 6%);
+  --popover-foreground: hsl(210, 6%, 91%);
+  --primary: hsl(45, 92%, 56%);
+  --primary-foreground: hsl(220, 40%, 6%);
+  --secondary: hsl(258, 88%, 65%);
+  --secondary-foreground: hsl(210, 6%, 91%);
+  --muted: hsl(220, 15%, 15%);
+  --muted-foreground: hsl(210, 6%, 56%);
+  --accent: hsl(258, 70%, 20%);
+  --accent-foreground: hsl(45, 92%, 56%);
+  --destructive: hsl(356, 91%, 54%);
+  --destructive-foreground: hsl(210, 6%, 91%);
+  --border: hsl(258, 51%, 13%);
+  --input: hsl(220, 20%, 18%);
+  --ring: hsl(45, 92%, 56%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .cosmic-gradient {
+    background: linear-gradient(135deg, hsl(224, 71%, 4%) 0%, hsl(272, 47%, 11%) 25%, hsl(272, 69%, 18%) 50%, hsl(271, 81%, 22%) 75%, hsl(272, 47%, 11%) 100%);
+  }
+  
+  .nebula-overlay {
+    background: 
+      radial-gradient(ellipse at center, hsla(270, 91%, 65%, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, hsla(37, 92%, 50%, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 80%, hsla(272, 72%, 47%, 0.1) 0%, transparent 50%);
+  }
+  
+  .constellation-bg {
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, hsla(0, 0%, 100%, 0.4), transparent),
+      radial-gradient(2px 2px at 40px 70px, hsla(0, 0%, 100%, 0.3), transparent),
+      radial-gradient(1px 1px at 90px 40px, hsla(0, 0%, 100%, 0.5), transparent),
+      radial-gradient(1px 1px at 130px 80px, hsla(0, 0%, 100%, 0.3), transparent),
+      radial-gradient(2px 2px at 160px 30px, hsla(0, 0%, 100%, 0.4), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+  }
+  
+  .cosmic-border {
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, hsla(37, 92%, 50%, 0.3), hsla(270, 91%, 65%, 0.3)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+  
+  .zodiac-wheel {
+    background: conic-gradient(
+      from 0deg,
+      hsl(37, 92%, 50%) 0deg 30deg,
+      hsl(272, 72%, 47%) 30deg 60deg,
+      hsl(197, 95%, 52%) 60deg 90deg,
+      hsl(159, 100%, 36%) 90deg 120deg,
+      hsl(37, 92%, 50%) 120deg 150deg,
+      hsl(356, 91%, 54%) 150deg 180deg,
+      hsl(272, 72%, 47%) 180deg 210deg,
+      hsl(197, 95%, 52%) 210deg 240deg,
+      hsl(159, 100%, 36%) 240deg 270deg,
+      hsl(37, 92%, 50%) 270deg 300deg,
+      hsl(356, 91%, 54%) 300deg 330deg,
+      hsl(272, 72%, 47%) 330deg 360deg
+    );
+  }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 20px hsla(356, 91%, 68%, 0.5); }
+  100% { box-shadow: 0 0 40px hsla(356, 91%, 68%, 0.8); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes constellation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes cosmic-drift {
+  0% { transform: translateX(-100vw); }
+  100% { transform: translateX(100vw); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-constellation {
+  animation: constellation 10s linear infinite;
+}
+
+.animate-cosmic-drift {
+  animation: cosmic-drift 20s linear infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+.floating-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  background: hsla(0, 0%, 100%, 0.6);
+  border-radius: 50%;
+  animation: cosmic-drift var(--duration) linear infinite;
+  animation-delay: var(--delay);
+}
